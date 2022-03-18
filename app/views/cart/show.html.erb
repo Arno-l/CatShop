@@ -1,0 +1,83 @@
+<div class="container">
+    <div class="header-cart">
+        <ul id="ulcart"class="d-flex flex-wrap align-items-center justify-content-center ">
+            <li class="me-3"><img src="https://iconarchive.com/download/i78686/iconka/meow-2/cat-gift.ico" alt=""></li>
+            <li class="me-3"><h3>This is your Cat-Cart </h3></li>
+            <li class="me-3"><img src="https://iconarchive.com/download/i78686/iconka/meow-2/cat-gift.ico" alt=""></li>
+        </ul>
+        
+    
+    </div>
+</div>
+
+<div class="container" id="container">
+
+<%if @cart.items.length == 0%>
+
+<div class="table tablecart text-center py-5">
+<p>Your cart is empty</p>
+</div>
+
+<%else%>
+        <table class="table tablecart">
+            <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Item Name</th>
+                <th scope="col">Item Description</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Price per article</th>
+            </tr>
+            </thead>
+            <tbody id="tableitem">
+
+            <%@cart.join_table_cart_items.sort.each do |item| %>
+            <tr id="item<%=item.id%>">
+                <th scope="row"><%= button_to "Remove", jointablecartitem_path(item.id), remote: true , params: {cart_id: params[:id]}, method: :delete,  confirm: "Êtes-vous sûr de vouloir supprimer l'article ?", class: "btn btn-destroy"%><br></th>
+                
+                <td><a href="<%=item_path(item.item.id)%>"><%=item.item.title%></a></td>
+                <td><%=item.item.description%></td>
+                <td>
+                <span id="add<%=item.id%>"><%= button_to "+", jointablecartitem_path(item.id), method: :put, params: {quantity: item.quantity + 1}, class: "btn btn-destroy", style: "display:inline-block"%></span>
+                   <span id="quantity<%=item.id%>"> <%=item.quantity%>   </span> 
+                   <span id="remove<%=item.id%>"><%= button_to "-", jointablecartitem_path(item.id), method: :put, params: {quantity: item.quantity - 1}, class: "btn btn-destroy", style: "display:inline-block"%></span></td>
+
+                <td class="number"><%=item.item.price * item.quantity%></td>
+            </tr>
+            <%end%>
+            </tbody>
+            <thead>
+                <tr>
+                    <th scope="col"><%= button_to "Delete cart", cart_path(params[:id]), method: :put, remote: true, confirm: "Êtes-vous sûr de vouloir vider le panier ?", class: "btn btn-destroy"%><br></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col">Total Price :</th>
+                    <th scope="col" id="total"><%=@total%></th>
+                </tr>
+            </thead>
+        </table>
+        
+            <div class="order-btn text-center">
+                <form action="<%=orders_path%>" method="POST">
+                 <div class="container text-center ">
+            <button type="submit" class="btn btn-submit">Buy Now</button>
+
+        </div>
+            <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                data-key="<%= Rails.configuration.stripe[:publishable_key] %>"
+                data-amount= "<%=@stripe_amount%>"
+                data-description="Place order"
+                data-locale="auto">
+            </script>
+            <script>
+                // Hide default stripe button, be careful there if you
+                // have more than 1 button of that class
+                document.getElementsByClassName("stripe-button-el")[0].style.display = 'none';
+            </script>
+       
+        </form>
+
+ <%end%>
+
+    </div>
+</div>
